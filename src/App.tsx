@@ -1,4 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, createContext } from 'react';
+import ChangeThemeClass from "./components/ChangeThemeClass"
+import ChangeTheme from "./components/ChangeTheme"
+
+export const ThemeContext = createContext(true)
 
 function App() {
   // there are two ways when we want to pass initial values to 'useState'
@@ -21,6 +25,20 @@ function App() {
   const doubleNumber = useMemo(() => {
         return slowFunction(number)
     }, [number]) // the only element that changes
+
+  // using useRef
+  const [ name, setName ] = useState('')
+  const renderCount = useRef(0)
+  useEffect(()=>{
+    renderCount.current = renderCount.current + 1
+  })
+
+  // using context in react
+  const [darkTheme, setDarkTheme] = useState(() => true)
+
+  function toggleTheme(){
+    setDarkTheme(prevDarkTheme => !prevDarkTheme)
+  }
 
   // using useMemo to reupdate only when dark variable changes
   const themeStyles = useMemo(() => {
@@ -65,6 +83,11 @@ function App() {
 
   return (
     <div>
+        <ThemeContext.Provider value={darkTheme}>
+            <button onClick={toggleTheme}>Toggle theme</button>
+            <ChangeThemeClass />
+            <ChangeTheme />
+        </ThemeContext.Provider>
         <div>
             <h1>Example counter with useState</h1>
             <p style={{color: theme, fontSize: "40px"}}>{counter}</p>
@@ -82,6 +105,13 @@ function App() {
 
             <button onClick={()=> setDark(prevDark => !prevDark)}>Change Theme</button>
             <div style={themeStyles}>{doubleNumber}</div>
+            <div>the name is {name}</div>
+        </div>
+        <div>
+            <h1>Using useRef</h1>
+            <input type="text" value={name} onChange={e => setName(e.target.value)} />
+            <div>My name is {name}</div>
+            <div>render times: {renderCount.current} </div>
         </div>
         <div>
             <h1>Example counter with useEffect</h1>
